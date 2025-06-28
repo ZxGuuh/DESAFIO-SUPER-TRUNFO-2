@@ -1,109 +1,121 @@
-#include <stdio.h> // biblioteca padrão de entrada e saída
-#include <string.h> // biblioteca para usar strings (cadeias de caracteres)
+#include <stdio.h>
+#include <string.h>
 
-// -------------------------
-// Definindo a estrutura "Carta"
-// -------------------------
-/*
-   A estrutura "Carta" serve para guardar todos os dados de uma cidade.
-   Ela agrupa várias variáveis em um único "tipo".
-*/
+// Estrutura para armazenar os dados da carta
 typedef struct {
-    char estado[30];               // Estado da cidade (ex: "Distrito Federal")
-    char codigo[10];               // Código da carta (ex: "DF01")
-    char nome[50];                 // Nome da cidade (ex: "Brasília")
-    int populacao;                 // População total da cidade
-    float area;                    // Área em quilômetros quadrados
-    float pib;                     // Produto Interno Bruto em bilhões
-    int pontosTuristicos;         // Número de pontos turísticos
-    float densidadePopulacional;  // População / Área
-    float pibPerCapita;           // PIB / População
+    char nome[50];
+    char estado[30];
+    char codigo[10];
+    int populacao;
+    float area;
+    float pib;
+    int pontosTuristicos;
+    float densidadePopulacional;
+    float pibPerCapita;
 } Carta;
 
-// -------------------------
-// Função para calcular indicadores (densidade e PIB per capita)
-// -------------------------
+// Função para calcular densidade populacional e PIB per capita
 void calcularIndicadores(Carta *carta) {
-    // Cálculo da densidade populacional
     carta->densidadePopulacional = carta->populacao / carta->area;
-
-    // Cálculo do PIB per capita
     carta->pibPerCapita = carta->pib / carta->populacao;
 }
 
-// -------------------------
-// Função para imprimir os dados de uma carta
-// -------------------------
-void imprimirCarta(Carta carta) {
-    printf("Cidade: %s (%s)\n", carta.nome, carta.estado);
-    printf("Código: %s\n", carta.codigo);
-    printf("População: %d habitantes\n", carta.populacao);
-    printf("Área: %.2f km²\n", carta.area);
-    printf("PIB: %.2f bilhões\n", carta.pib);
-    printf("Pontos turísticos: %d\n", carta.pontosTuristicos);
-    printf("Densidade populacional: %.2f hab/km²\n", carta.densidadePopulacional);
-    printf("PIB per capita: %.2f\n", carta.pibPerCapita);
-    printf("-----------------------------------------\n");
+// Função para exibir o menu e retornar a escolha do usuário
+int exibirMenu() {
+    int opcao;
+    printf("\n===== SUPER TRUNFO: COMPARAÇÃO DE CIDADES =====\n");
+    printf("Escolha o atributo para comparar:\n");
+    printf("1 - População\n");
+    printf("2 - Área\n");
+    printf("3 - PIB\n");
+    printf("4 - Pontos Turísticos\n");
+    printf("5 - Densidade Demográfica\n");
+    printf("Digite sua opção: ");
+    scanf("%d", &opcao);
+    return opcao;
 }
 
-// -------------------------
-// Função que compara duas cartas usando o PIB per capita
-// -------------------------
-void compararCartas(Carta carta1, Carta carta2) {
-    printf("=== COMPARAÇÃO DE CARTAS ===\n");
-    printf("Atributo escolhido: PIB per capita\n\n");
+// Função que realiza a comparação com base no atributo escolhido
+void compararCartas(Carta c1, Carta c2, int atributo) {
+    float valor1 = 0, valor2 = 0;
+    char nomeAtributo[50];
 
-    // Mostrar as duas cartas
-    printf("Carta 1:\n");
-    imprimirCarta(carta1);
+    switch (atributo) {
+        case 1:  // População
+            valor1 = c1.populacao;
+            valor2 = c2.populacao;
+            strcpy(nomeAtributo, "População");
+            break;
 
-    printf("Carta 2:\n");
-    imprimirCarta(carta2);
+        case 2:  // Área
+            valor1 = c1.area;
+            valor2 = c2.area;
+            strcpy(nomeAtributo, "Área");
+            break;
 
-    // Lógica para determinar qual carta venceu
-    if (carta1.pibPerCapita > carta2.pibPerCapita) {
-        printf("Resultado: Carta 1 (%s) venceu com PIB per capita maior!\n", carta1.nome);
+        case 3:  // PIB
+            valor1 = c1.pib;
+            valor2 = c2.pib;
+            strcpy(nomeAtributo, "PIB");
+            break;
+
+        case 4:  // Pontos turísticos
+            valor1 = c1.pontosTuristicos;
+            valor2 = c2.pontosTuristicos;
+            strcpy(nomeAtributo, "Pontos Turísticos");
+            break;
+
+        case 5:  // Densidade Demográfica (regra invertida)
+            valor1 = c1.densidadePopulacional;
+            valor2 = c2.densidadePopulacional;
+            strcpy(nomeAtributo, "Densidade Demográfica");
+            break;
+
+        default:
+            printf("Opção inválida! Por favor, reinicie o programa e escolha entre 1 e 5.\n");
+            return;
     }
-    else if (carta1.pibPerCapita < carta2.pibPerCapita) {
-        printf("Resultado: Carta 2 (%s) venceu com PIB per capita maior!\n", carta2.nome);
-    }
-    else {
-        printf("Resultado: Empate! As duas cartas têm o mesmo PIB per capita.\n");
+
+    // Mostrar os dados comparados
+    printf("\n=== Comparação de Cartas (Atributo: %s) ===\n", nomeAtributo);
+    printf("Carta 1 - %s: %.2f\n", c1.nome, valor1);
+    printf("Carta 2 - %s: %.2f\n", c2.nome, valor2);
+
+    // Lógica de decisão
+    if (atributo == 5) { // Densidade Demográfica: vence o menor
+        if (valor1 < valor2) {
+            printf("Resultado: %s venceu!\n", c1.nome);
+        } else if (valor1 > valor2) {
+            printf("Resultado: %s venceu!\n", c2.nome);
+        } else {
+            printf("Resultado: Empate!\n");
+        }
+    } else { // Nos demais atributos: vence o maior
+        if (valor1 > valor2) {
+            printf("Resultado: %s venceu!\n", c1.nome);
+        } else if (valor1 < valor2) {
+            printf("Resultado: %s venceu!\n", c2.nome);
+        } else {
+            printf("Resultado: Empate!\n");
+        }
     }
 }
 
-// -------------------------
-// Função principal (main)
-// -------------------------
+// Função principal
 int main() {
-    // Declarando duas variáveis do tipo Carta
-    Carta brasilia;
-    Carta recife;
+    // Criando as duas cartas
+    Carta brasilia = {"Brasília", "Distrito Federal", "DF01", 3055149, 5802.0, 273.5, 15};
+    Carta recife = {"Recife", "Pernambuco", "PE01", 1653461, 218.5, 69.0, 10};
 
-    // Preenchendo os dados da carta de Brasília
-    strcpy(brasilia.estado, "Distrito Federal");
-    strcpy(brasilia.codigo, "DF01");
-    strcpy(brasilia.nome, "Brasília");
-    brasilia.populacao = 3055149;
-    brasilia.area = 5802.0;
-    brasilia.pib = 273.5;
-    brasilia.pontosTuristicos = 15;
-
-    // Preenchendo os dados da carta de Recife
-    strcpy(recife.estado, "Pernambuco");
-    strcpy(recife.codigo, "PE01");
-    strcpy(recife.nome, "Recife");
-    recife.populacao = 1653461;
-    recife.area = 218.5;
-    recife.pib = 69.0;
-    recife.pontosTuristicos = 10;
-
-    // Calculando os indicadores das duas cidades
+    // Calculando indicadores
     calcularIndicadores(&brasilia);
     calcularIndicadores(&recife);
 
-    // Comparando as duas cartas
-    compararCartas(brasilia, recife);
+    // Mostrando menu e capturando escolha
+    int opcao = exibirMenu();
 
-    return 0; // Fim do programa
+    // Realizando comparação com base na opção
+    compararCartas(brasilia, recife, opcao);
+
+    return 0;
 }
